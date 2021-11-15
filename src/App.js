@@ -1,25 +1,70 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import {Loader} from './components/index'
+import styled, { ThemeProvider } from 'styled-components';
+import { GlobalStyle, theme } from './styles/index'
 import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
-
+  const StyledContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  `;
+  
+  const Layout = ({location }) => {
+    const isHome = location.pathname === '/';
+    const [isLoading, setIsLoading] = useState(isHome);
+  
+    // Sets target="_blank" rel="noopener noreferrer" on external links
+    const handleExternalLinks = () => {
+      const allLinks = Array.from(document.querySelectorAll('a'));
+      if (allLinks.length > 0) {
+        allLinks.forEach(link => {
+          if (link.host !== window.location.host) {
+            link.setAttribute('rel', 'noopener noreferrer');
+            link.setAttribute('target', '_blank');
+          }
+        });
+      }
+    };
+  
+    useEffect(() => {
+      if (isLoading) {
+        return;
+      }
+  
+      if (location.hash) {
+        const id = location.hash.substring(1); // location.hash without the '#'
+        setTimeout(() => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView();
+            el.focus();
+          }
+        }, 0);
+      }
+  
+      handleExternalLinks();
+    }, [isLoading]);
+  
+    return (
+      <>
+        <div id="root">
+          <ThemeProvider theme={theme}>
+            <GlobalStyle />
+  
+            <a className="skip-to-content" href="#content">
+              Skip to Content
+            </a>
+  
+            {isLoading && isHome ? (
+              <Loader finishLoading={() => setIsLoading(false)} />
+            ) : (
+              <StyledContent>
+              </StyledContent>
+            )}
+          </ThemeProvider>
+        </div>
+      </>
+    );
+  };  
+  
 export default App;
